@@ -105,15 +105,15 @@ const AIAssistant: FC<AIAssistantProps> = ({
               "rounded-lg p-3 max-w-[85%]",
               msg.role === "assistant" ? "bg-neutral-800" : "bg-primary bg-opacity-20"
             )}>
-              <ReactMarkdown
-                className={cn(
-                  "text-sm prose prose-invert max-w-none",
-                  "prose-pre:bg-neutral-950 prose-pre:text-xs prose-pre:p-2 prose-pre:rounded",
-                  "prose-code:text-sky-300 prose-code:bg-neutral-950 prose-code:px-1 prose-code:py-0.5 prose-code:rounded"
-                )}
-              >
-                {msg.content}
-              </ReactMarkdown>
+              <div className={cn(
+                "text-sm prose prose-invert max-w-none",
+                "prose-pre:bg-neutral-950 prose-pre:text-xs prose-pre:p-2 prose-pre:rounded",
+                "prose-code:text-sky-300 prose-code:bg-neutral-950 prose-code:px-1 prose-code:py-0.5 prose-code:rounded"
+              )}>
+                <ReactMarkdown>
+                  {msg.content}
+                </ReactMarkdown>
+              </div>
             </div>
             
             {msg.role === "user" && (

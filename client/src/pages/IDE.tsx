@@ -108,7 +108,7 @@ export default function IDE() {
       });
       
       if (parentNode) {
-        parentPath = parentNode.path;
+        parentPath = (parentNode as any).path;
       }
     } else {
       // Default to first root folder
@@ -202,7 +202,7 @@ export default function IDE() {
           {/* Code Editor */}
           {activeFile ? (
             <CodeEditor
-              code={activeFile.content}
+              code={activeFile.content || ""}
               language={activeFile.name}
               onChange={handleCodeChange}
             />

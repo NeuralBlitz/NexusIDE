@@ -42,7 +42,7 @@ export async function runJavaScript(code: string, filename: string): Promise<Exe
     } catch (error) {
       return {
         output: '',
-        error: error.message
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
     } finally {
       // Clean up temp file
@@ -56,7 +56,7 @@ export async function runJavaScript(code: string, filename: string): Promise<Exe
     console.error('Error running JavaScript code:', error);
     return {
       output: '',
-      error: `Failed to execute code: ${error.message}`
+      error: `Failed to execute code: ${error instanceof Error ? error.message : 'Unknown error'}`
     };
   }
 }
@@ -87,7 +87,7 @@ export async function runCommand(command: string): Promise<ExecutionResult> {
   } catch (error) {
     return {
       output: '',
-      error: error.message
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
   }
 }

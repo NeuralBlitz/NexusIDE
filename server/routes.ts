@@ -9,13 +9,15 @@ import { runJavaScript, runCommand, createProjectStructure } from "./services/fi
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
   
-  // Setup WebSockets for real-time communication
+  // Setup WebSockets for real-time communication on a different path to avoid conflict with Vite HMR
   try {
-    // Import WebSocket directly
     const WebSocket = await import('ws');
     
-    // Create WebSocket server using the correct constructor
-    const wss = new WebSocket.WebSocketServer({ server: httpServer });
+    // Create WebSocket server with a specific path to avoid conflicts
+    const wss = new WebSocket.WebSocketServer({ 
+      server: httpServer,
+      path: '/ws/ide' // Use a specific path to avoid conflict with Vite's /_vite/ws
+    });
     
     wss.on('connection', (ws) => {
       console.log('WebSocket client connected');
@@ -23,7 +25,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       ws.on('message', (message) => {
         try {
           console.log('Received message:', message.toString());
-          // Handle WebSocket messages
+          // Handle WebSocket messages for real-time collaboration
         } catch (err) {
           console.error('Error processing message:', err);
         }
@@ -35,13 +37,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Send initial connection message
       try {
-        ws.send(JSON.stringify({ type: 'connection', message: 'Connected to WebSocket server' }));
+        ws.send(JSON.stringify({ type: 'connection', message: 'Connected to IDE WebSocket server' }));
       } catch (err) {
         console.error('Error sending welcome message:', err);
       }
     });
     
-    console.log('WebSocket server initialized successfully');
+    console.log('WebSocket server initialized successfully on /ws/ide path');
   } catch (error: any) {
     console.error('Failed to initialize WebSocket server:', error?.message || error);
   }

@@ -247,8 +247,8 @@ A project with AI-assisted coding.
         id: file.id,
         name: file.name,
         path: file.path,
-        isFolder: file.isFolder,
-        content: file.content,
+        isFolder: file.isFolder || false,
+        content: file.content || undefined,
         children: []
       };
       
@@ -303,6 +303,9 @@ A project with AI-assisted coding.
     const newFile: File = { 
       ...file, 
       id, 
+      content: file.content || "",
+      isFolder: file.isFolder || false,
+      parentId: file.parentId || null,
       createdAt: now, 
       updatedAt: now 
     };
@@ -356,7 +359,7 @@ A project with AI-assisted coding.
   async getChatMessages(userId: number, limit?: number): Promise<ChatMessage[]> {
     const userMessages = Array.from(this.chatMessages.values())
       .filter(msg => msg.userId === userId)
-      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+      .sort((a, b) => (a.createdAt?.getTime() || 0) - (b.createdAt?.getTime() || 0));
     
     return limit ? userMessages.slice(-limit) : userMessages;
   }
