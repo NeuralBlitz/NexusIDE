@@ -59,7 +59,13 @@ const CodeEditor: FC<CodeEditorProps> = ({ code, language, onChange }) => {
         tabSize: 2,
         rulers: [],
         wordWrap: 'on',
+        autoClosingBrackets: 'always',
+        autoClosingQuotes: 'always',
+        formatOnType: true,
       });
+
+      // Expose monaco to window for Range constructor
+      (window as any).monaco = monaco;
 
       // Add event listener for content changes
       monacoEditorRef.current.onDidChangeModelContent(() => {
@@ -79,10 +85,25 @@ const CodeEditor: FC<CodeEditorProps> = ({ code, language, onChange }) => {
     if (monacoEditorRef.current) {
       const currentValue = monacoEditorRef.current.getValue();
       if (code !== currentValue) {
+        // Preserving cursor position while updating
+        const position = monacoEditorRef.current.getPosition();
         monacoEditorRef.current.setValue(code);
+        if (position) {
+          monacoEditorRef.current.setPosition(position);
+        }
       }
     }
   }, [code]);
+
+  // Expose monaco instance to window for global access (hacky but useful for AccessoryBar)
+  useEffect(() => {
+    if (monacoEditorRef.current) {
+      (window as any).monacoEditor = monacoEditorRef.current;
+    }
+    return () => {
+      (window as any).monacoEditor = null;
+    };
+  }, [monacoEditorRef.current]);
 
   // Update editor language if language prop changes
   useEffect(() => {

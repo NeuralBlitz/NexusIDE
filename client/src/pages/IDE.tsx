@@ -3,6 +3,7 @@ import AppHeader from "@/components/AppHeader";
 import FileExplorer from "@/components/FileExplorer";
 import EditorTabs from "@/components/EditorTabs";
 import CodeEditor from "@/components/CodeEditor";
+import AccessoryBar from "@/components/AccessoryBar";
 import Terminal from "@/components/Terminal";
 import AIAssistant from "@/components/AIAssistant";
 import StatusBar from "@/components/StatusBar";
@@ -201,11 +202,53 @@ export default function IDE() {
           
           {/* Code Editor */}
           {activeFile ? (
-            <CodeEditor
-              code={activeFile.content || ""}
-              language={activeFile.name}
-              onChange={handleCodeChange}
-            />
+            <div className="flex-1 flex flex-col overflow-hidden relative">
+              <CodeEditor
+                code={activeFile.content || ""}
+                language={activeFile.name}
+                onChange={handleCodeChange}
+              />
+              <AccessoryBar 
+                onInsert={(text) => {
+                  const editor = (window as any).monacoEditor;
+                  if (editor) {
+                    const selection = editor.getSelection();
+                    const id = { major: 1, minor: 1 };
+                    const op = {
+                      identifier: id,
+                      range: selection,
+                      text: text,
+                      forceMoveMarkers: true
+                    };
+                    editor.executeEdits("accessory-bar", [op]);
+                    editor.focus();
+                    
+                    // Auto-closing brackets
+                    const pairs: Record<string, string> = {
+                      '{': '}',
+                      '(': ')',
+                      '[': ']',
+                      '"': '"',
+                      "'": "'"
+                    };
+                    
+                    if (pairs[text]) {
+                      const pos = editor.getPosition();
+                      const closeOp = {
+                        identifier: id,
+                        range: new (window as any).monaco.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column),
+                        text: pairs[text],
+                        forceMoveMarkers: true
+                      };
+                      editor.executeEdits("auto-close", [closeOp]);
+                      editor.setPosition(pos); // Keep cursor between brackets
+                    }
+                  } else {
+                    handleCodeChange((activeFile.content || "") + text);
+                  }
+                }} 
+              />
+            </div>
           ) : (
             <div className="flex-1 flex items-center justify-center bg-neutral-800 text-neutral-400">
               <div className="text-center">
